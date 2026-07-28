@@ -95,9 +95,9 @@ st.markdown("---")
 st.subheader("💰 Annual Income")
 annual_income_lakh = st.number_input(
     "Annual Income (₹ in Lakhs)",
-    min_value=0.0, step=1.0, format="%.2f"
+    min_value=0, step=1, value=None, placeholder="Enter amount"
 )
-annual_income = annual_income_lakh * LAKH
+annual_income = (annual_income_lakh or 0) * LAKH
 
 st.markdown("---")
 
@@ -110,22 +110,22 @@ st.caption("Liquid/investible assets — excludes your primary residence")
 fa_col1, fa_col2 = st.columns(2)
 
 with fa_col1:
-    stocks = st.number_input("Stocks / Equity Shares (₹ Lakhs)", min_value=0.0, step=1.0)
-    mutual_funds = st.number_input("Mutual Funds (₹ Lakhs)", min_value=0.0, step=1.0)
-    rsu_esop = st.number_input("RSUs / ESOPs (vested, current value) (₹ Lakhs)", min_value=0.0, step=1.0)
-    bonds = st.number_input("Bonds / Debentures / NCDs (₹ Lakhs)", min_value=0.0, step=1.0)
-    unlisted_shares = st.number_input("Unlisted / Pre-IPO Shares (₹ Lakhs)", min_value=0.0, step=1.0)
+    stocks = st.number_input("Stocks / Equity Shares (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    mutual_funds = st.number_input("Mutual Funds (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    rsu_esop = st.number_input("RSUs / ESOPs (vested, current value) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    bonds = st.number_input("Bonds / Debentures / NCDs (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    unlisted_shares = st.number_input("Unlisted / Pre-IPO Shares (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 with fa_col2:
-    fixed_deposits = st.number_input("Fixed Deposits (₹ Lakhs)", min_value=0.0, step=1.0)
-    ppf_epf_nps = st.number_input("PPF / EPF / NPS (₹ Lakhs)", min_value=0.0, step=1.0)
-    gold = st.number_input("Gold (ETF / SGB / Physical - investment grade) (₹ Lakhs)", min_value=0.0, step=1.0)
-    aif_pms = st.number_input("AIF / PMS Investments (₹ Lakhs)", min_value=0.0, step=1.0)
-    other_financial = st.number_input("Other Financial Assets (₹ Lakhs)", min_value=0.0, step=1.0)
+    fixed_deposits = st.number_input("Fixed Deposits (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    ppf_epf_nps = st.number_input("PPF / EPF / NPS (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    gold = st.number_input("Gold (ETF / SGB / Physical - investment grade) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    aif_pms = st.number_input("AIF / PMS Investments (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    other_financial = st.number_input("Other Financial Assets (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 total_financial_assets = (
-    stocks + mutual_funds + rsu_esop + bonds + unlisted_shares +
-    fixed_deposits + ppf_epf_nps + gold + aif_pms + other_financial
+    (stocks or 0) + (mutual_funds or 0) + (rsu_esop or 0) + (bonds or 0) + (unlisted_shares or 0) +
+    (fixed_deposits or 0) + (ppf_epf_nps or 0) + (gold or 0) + (aif_pms or 0) + (other_financial or 0)
 ) * LAKH
 
 st.markdown("---")
@@ -138,14 +138,14 @@ st.subheader("🏠 Non-Financial Assets")
 nfa_col1, nfa_col2 = st.columns(2)
 
 with nfa_col1:
-    primary_residence = st.number_input("Primary Residence (market value) (₹ Lakhs)", min_value=0.0, step=1.0)
-    other_real_estate = st.number_input("Other Real Estate (₹ Lakhs)", min_value=0.0, step=1.0)
+    primary_residence = st.number_input("Primary Residence (market value) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    other_real_estate = st.number_input("Other Real Estate (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 with nfa_col2:
-    other_non_financial = st.number_input("Other Non-Financial Assets (₹ Lakhs)", min_value=0.0, step=1.0)
+    other_non_financial = st.number_input("Other Non-Financial Assets (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 total_non_financial_assets = (
-    primary_residence + other_real_estate + other_non_financial
+    (primary_residence or 0) + (other_real_estate or 0) + (other_non_financial or 0)
 ) * LAKH
 
 st.markdown("---")
@@ -160,11 +160,11 @@ net_worth = total_assets
 # Eligibility Logic
 # ----------------------------
 def check_accredited_investor(net_worth, total_financial_assets, annual_income):
-    option1 = net_worth > 7.5 * CRORE and total_financial_assets >= 3.75 * CRORE
-    option2 = annual_income > 2 * CRORE
+    option1 = net_worth >= 7.5 * CRORE and total_financial_assets >= 3.75 * CRORE
+    option2 = annual_income >= 2 * CRORE
     option3 = (
-        net_worth > 5 * CRORE and
-        annual_income > 1 * CRORE and
+        net_worth >= 5 * CRORE and
+        annual_income >= 1 * CRORE and
         total_financial_assets >= 2.5 * CRORE
     )
     return option1, option2, option3
@@ -197,11 +197,11 @@ if analyze:
     st.markdown("---")
 
     with st.expander("See which criteria you meet"):
-        st.write(f"**Option 1** (Net worth > ₹7.5 Cr, with ≥ ₹3.75 Cr in financial assets): "
+        st.write(f"**Option 1** (Net worth ≥ ₹7.5 Cr, with ≥ ₹3.75 Cr in financial assets): "
                  f"{'✅ Met' if option1 else '❌ Not met'}")
-        st.write(f"**Option 2** (Annual income > ₹2 Cr): "
+        st.write(f"**Option 2** (Annual income ≥ ₹2 Cr): "
                  f"{'✅ Met' if option2 else '❌ Not met'}")
-        st.write(f"**Option 3** (Net worth > ₹5 Cr + income > ₹1 Cr, with ≥ ₹2.5 Cr in financial assets): "
+        st.write(f"**Option 3** (Net worth ≥ ₹5 Cr + income ≥ ₹1 Cr, with ≥ ₹2.5 Cr in financial assets): "
                  f"{'✅ Met' if option3 else '❌ Not met'}")
 
     # Save the lead to Google Sheets
