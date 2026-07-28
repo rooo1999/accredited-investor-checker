@@ -80,10 +80,12 @@ st.subheader("👤 Personal Information")
 
 col1, col2 = st.columns(2)
 with col1:
-    name = st.text_input("Full Name")
+    name = st.text_input("Full Name *")
     email = st.text_input("Email Address (optional)")
 with col2:
-    phone = st.text_input("Phone Number (with country code)", placeholder="+91 XXXXXXXXXX")
+    phone = st.text_input("Phone Number * (with country code)", placeholder="+91 XXXXXXXXXX")
+
+st.caption("* Required fields")
 
 st.markdown("---")
 
@@ -140,11 +142,10 @@ with nfa_col1:
     other_real_estate = st.number_input("Other Real Estate (₹ Lakhs)", min_value=0.0, step=1.0)
 
 with nfa_col2:
-    vehicles = st.number_input("Vehicles (₹ Lakhs)", min_value=0.0, step=1.0)
     other_non_financial = st.number_input("Other Non-Financial Assets (₹ Lakhs)", min_value=0.0, step=1.0)
 
 total_non_financial_assets = (
-    primary_residence + other_real_estate + vehicles + other_non_financial
+    primary_residence + other_real_estate + other_non_financial
 ) * LAKH
 
 st.markdown("---")
@@ -175,6 +176,10 @@ st.markdown("## ")
 analyze = st.button("🔍 Analyze Eligibility", type="primary", use_container_width=True)
 
 if analyze:
+    if not name.strip() or not phone.strip():
+        st.error("⚠️ Please enter at least your **Name** and **Phone Number** before analyzing.")
+        st.stop()
+
     st.markdown("---")
     st.subheader("📊 Summary")
 
