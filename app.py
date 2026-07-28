@@ -34,7 +34,14 @@ def get_worksheet():
 
     expected_headers = [
         "Timestamp", "Name", "Email", "Phone",
-        "Annual Income", "Total Financial Assets", "Total Non-Financial Assets",
+        "Annual Income",
+        "Stocks / Equity Shares", "Mutual Funds", "RSUs / ESOPs",
+        "Bonds / Debentures / NCDs", "Unlisted / Pre-IPO Shares",
+        "Fixed Deposits", "PPF / EPF / NPS", "Gold",
+        "AIF / PMS Investments", "Other Financial Assets",
+        "Total Financial Assets",
+        "Primary Residence", "Other Real Estate", "Other Non-Financial Assets",
+        "Total Non-Financial Assets",
         "Net Worth",
         "Option 1 Met", "Option 2 Met", "Option 3 Met", "Eligible"
     ]
@@ -213,7 +220,14 @@ if analyze:
     save_lead([
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         name, email, phone,
-        annual_income, total_financial_assets, total_non_financial_assets,
+        annual_income,
+        (stocks or 0) * LAKH, (mutual_funds or 0) * LAKH, (rsu_esop or 0) * LAKH,
+        (bonds or 0) * LAKH, (unlisted_shares or 0) * LAKH,
+        (fixed_deposits or 0) * LAKH, (ppf_epf_nps or 0) * LAKH, (gold or 0) * LAKH,
+        (aif_pms or 0) * LAKH, (other_financial or 0) * LAKH,
+        total_financial_assets,
+        (primary_residence or 0) * LAKH, (other_real_estate or 0) * LAKH, (other_non_financial or 0) * LAKH,
+        total_non_financial_assets,
         net_worth,
         option1, option2, option3, is_eligible
     ])
@@ -222,7 +236,7 @@ if analyze:
         st.success(f"🎉 Congratulations {name if name else ''}! You may qualify as an **Accredited Investor**.")
         st.markdown(
             """
-            <a href="https://wa.me/916364942933?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
+            <a href="https://wa.me/91XXXXXXXXXX?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
             target="_blank">
                 <button style="
                     background-color:#25D366;
