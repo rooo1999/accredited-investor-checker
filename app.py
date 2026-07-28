@@ -32,14 +32,19 @@ def get_worksheet():
     sheet = client.open_by_url(st.secrets["sheet_url"])
     worksheet = sheet.sheet1
 
-    # Add header row if the sheet is empty
-    if not worksheet.get_all_values():
-        worksheet.append_row([
-            "Timestamp", "Name", "Email", "Phone",
-            "Annual Income", "Total Financial Assets", "Total Non-Financial Assets",
-            "Net Worth",
-            "Option 1 Met", "Option 2 Met", "Option 3 Met", "Eligible"
-        ])
+    expected_headers = [
+        "Timestamp", "Name", "Email", "Phone",
+        "Annual Income", "Total Financial Assets", "Total Non-Financial Assets",
+        "Net Worth",
+        "Option 1 Met", "Option 2 Met", "Option 3 Met", "Eligible"
+    ]
+
+    # Insert header row if it's missing or doesn't match, regardless of
+    # whether other data already exists in the sheet
+    existing_first_row = worksheet.row_values(1)
+    if existing_first_row != expected_headers:
+        worksheet.insert_row(expected_headers, index=1)
+
     return worksheet
 
 
