@@ -42,7 +42,7 @@ def get_worksheet():
         "Total Financial Assets",
         "Primary Residence", "Other Real Estate", "Other Non-Financial Assets",
         "Total Non-Financial Assets",
-        "Net Worth",
+        "Net Worth (excl. Primary Residence, used for eligibility)",
         "Option 1 Met", "Option 2 Met", "Option 3 Met", "Eligible"
     ]
 
@@ -166,7 +166,11 @@ st.markdown("---")
 # Calculations
 # ----------------------------
 total_assets = total_financial_assets + total_non_financial_assets
-net_worth = total_assets
+
+# Primary residence is captured for records but excluded from net worth
+# used in the eligibility assessment
+primary_residence_value = (primary_residence or 0) * LAKH
+net_worth = total_assets - primary_residence_value
 
 # ----------------------------
 # Eligibility Logic
@@ -196,7 +200,7 @@ if analyze:
     st.subheader("📊 Summary")
 
     s1, s2, s3 = st.columns(3)
-    s1.metric("Net Worth", format_inr(net_worth))
+    s1.metric("Net Worth (excl. primary residence)", format_inr(net_worth))
     s2.metric("Financial Assets", format_inr(total_financial_assets))
     s3.metric("Annual Income", format_inr(annual_income))
 
@@ -209,11 +213,11 @@ if analyze:
     st.markdown("---")
 
     with st.expander("See which criteria you meet"):
-        st.write(f"**Option 1** (Net worth ≥ ₹7.5 Cr, with ≥ ₹3.75 Cr in financial assets): "
+        st.write(f"**Option 1** (Net worth, excl. primary residence, ≥ ₹7.5 Cr, with ≥ ₹3.75 Cr in financial assets): "
                  f"{'✅ Met' if option1 else '❌ Not met'}")
         st.write(f"**Option 2** (Annual income ≥ ₹2 Cr): "
                  f"{'✅ Met' if option2 else '❌ Not met'}")
-        st.write(f"**Option 3** (Net worth ≥ ₹5 Cr + income ≥ ₹1 Cr, with ≥ ₹2.5 Cr in financial assets): "
+        st.write(f"**Option 3** (Net worth, excl. primary residence, ≥ ₹5 Cr + income ≥ ₹1 Cr, with ≥ ₹2.5 Cr in financial assets): "
                  f"{'✅ Met' if option3 else '❌ Not met'}")
 
     # Save the lead to Google Sheets
@@ -236,7 +240,7 @@ if analyze:
         st.success(f"🎉 Congratulations {name if name else ''}! You may qualify as an **Accredited Investor**.")
         st.markdown(
             """
-            <a href="https://wa.me/916364942933?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
+            <a href="https://wa.me/91XXXXXXXXXX?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
             target="_blank">
                 <button style="
                     background-color:#25D366;
