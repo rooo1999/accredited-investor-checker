@@ -35,9 +35,9 @@ def get_worksheet():
     # Add header row if the sheet is empty
     if not worksheet.get_all_values():
         worksheet.append_row([
-            "Timestamp", "Name", "Email", "Phone", "PAN",
+            "Timestamp", "Name", "Email", "Phone",
             "Annual Income", "Total Financial Assets", "Total Non-Financial Assets",
-            "Total Liabilities", "Net Worth",
+            "Net Worth",
             "Option 1 Met", "Option 2 Met", "Option 3 Met", "Eligible"
         ])
     return worksheet
@@ -81,10 +81,9 @@ st.subheader("👤 Personal Information")
 col1, col2 = st.columns(2)
 with col1:
     name = st.text_input("Full Name")
-    email = st.text_input("Email Address")
+    email = st.text_input("Email Address (optional)")
 with col2:
     phone = st.text_input("Phone Number (with country code)", placeholder="+91 XXXXXXXXXX")
-    pan = st.text_input("PAN (optional)")
 
 st.markdown("---")
 
@@ -151,22 +150,10 @@ total_non_financial_assets = (
 st.markdown("---")
 
 # ----------------------------
-# Liabilities
-# ----------------------------
-st.subheader("📉 Liabilities")
-liabilities_lakh = st.number_input(
-    "Total Outstanding Loans / Liabilities (₹ Lakhs)",
-    min_value=0.0, step=1.0
-)
-total_liabilities = liabilities_lakh * LAKH
-
-st.markdown("---")
-
-# ----------------------------
 # Calculations
 # ----------------------------
 total_assets = total_financial_assets + total_non_financial_assets
-net_worth = total_assets - total_liabilities
+net_worth = total_assets
 
 # ----------------------------
 # Eligibility Logic
@@ -215,9 +202,9 @@ if analyze:
     # Save the lead to Google Sheets
     save_lead([
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        name, email, phone, pan,
+        name, email, phone,
         annual_income, total_financial_assets, total_non_financial_assets,
-        total_liabilities, net_worth,
+        net_worth,
         option1, option2, option3, is_eligible
     ])
 
