@@ -83,7 +83,7 @@ with col1:
     name = st.text_input("Full Name *")
     email = st.text_input("Email Address (optional)")
 with col2:
-    phone = st.text_input("Phone Number * (with country code)", placeholder="+91 XXXXXXXXXX")
+    phone = st.text_input("Phone Number *", placeholder="10-digit mobile number")
 
 st.caption("* Required fields")
 
