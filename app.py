@@ -124,17 +124,17 @@ st.caption("Liquid/investible assets - excludes your real estate investments")
 fa_col1, fa_col2 = st.columns(2)
 
 with fa_col1:
-    stocks = st.number_input("Stocks / Equity Shares (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    mutual_funds = st.number_input("Mutual Funds (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    rsu_esop = st.number_input("RSUs / ESOPs (vested, current value) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    bonds = st.number_input("Bonds / Debentures / NCDs (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    stocks = st.number_input("Stocks / Equity Shares (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    mutual_funds = st.number_input("Mutual Funds (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    rsu_esop = st.number_input("RSUs / ESOPs (vested, current value) (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    bonds = st.number_input("Bonds / Debentures / NCDs (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 with fa_col2:
-    fixed_deposits = st.number_input("Fixed Deposits (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    ppf_epf_nps = st.number_input("PPF / EPF / NPS (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    gold = st.number_input("Gold (ETF / SGB / Physical - investment grade) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    aif_pms = st.number_input("AIF / PMS Investments (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    other_financial = st.number_input("Other Financial Assets (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    fixed_deposits = st.number_input("Fixed Deposits (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    ppf_epf_nps = st.number_input("PPF / EPF / NPS (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    gold = st.number_input("Gold (ETF / SGB / Physical - investment grade) (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    aif_pms = st.number_input("AIF / PMS Investments (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    other_financial = st.number_input("Other Financial Assets (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 total_financial_assets = (
     (stocks or 0) + (mutual_funds or 0) + (rsu_esop or 0) + (bonds or 0) +
@@ -151,10 +151,10 @@ st.subheader("🏠 Non-Financial Assets")
 nfa_col1, nfa_col2 = st.columns(2)
 
 with nfa_col1:
-    primary_residence = st.number_input("Primary Residence (market value) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    primary_residence = st.number_input("Primary Residence (market value) (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 with nfa_col2:
-    other_real_estate = st.number_input("Other Real Estate (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    other_real_estate = st.number_input("Other Real Estate (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 total_non_financial_assets = (
     (primary_residence or 0) + (other_real_estate or 0)
