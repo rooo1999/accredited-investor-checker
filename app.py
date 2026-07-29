@@ -80,8 +80,9 @@ def format_inr(amount):
 # ----------------------------
 # Header
 # ----------------------------
+
 st.title("MIRA Wealth")
-st.markdown("### Accredited Investor Eligibility Checker")
+st.title("Accredited Investor Eligibility Checker")
 st.caption("Check whether you qualify as an Accredited Investor under SEBI's framework")
 
 st.markdown("---")
