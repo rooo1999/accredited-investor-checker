@@ -36,11 +36,11 @@ def get_worksheet():
         "Timestamp", "Name", "Email", "Phone",
         "Annual Income",
         "Stocks / Equity Shares", "Mutual Funds", "RSUs / ESOPs",
-        "Bonds / Debentures / NCDs", "Unlisted / Pre-IPO Shares",
+        "Bonds / Debentures / NCDs",
         "Fixed Deposits", "PPF / EPF / NPS", "Gold",
         "AIF / PMS Investments", "Other Financial Assets",
         "Total Financial Assets",
-        "Primary Residence", "Other Real Estate", "Other Non-Financial Assets",
+        "Primary Residence", "Other Real Estate",
         "Total Non-Financial Assets",
         "Net Worth (excl. Primary Residence, used for eligibility)",
         "Option 1 Met", "Option 2 Met", "Option 3 Met", "Eligible"
@@ -95,7 +95,7 @@ with col1:
     name = st.text_input("Full Name *")
     email = st.text_input("Email Address (optional)")
 with col2:
-    phone = st.text_input("Phone Number *", placeholder="10-digit mobile number")
+    phone = st.text_input("Phone Number * (10 digits)", placeholder="10-digit mobile number", max_chars=10)
 
 st.caption("* Required fields")
 
@@ -126,7 +126,6 @@ with fa_col1:
     mutual_funds = st.number_input("Mutual Funds (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
     rsu_esop = st.number_input("RSUs / ESOPs (vested, current value) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
     bonds = st.number_input("Bonds / Debentures / NCDs (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    unlisted_shares = st.number_input("Unlisted / Pre-IPO Shares (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 with fa_col2:
     fixed_deposits = st.number_input("Fixed Deposits (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
@@ -136,7 +135,7 @@ with fa_col2:
     other_financial = st.number_input("Other Financial Assets (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 total_financial_assets = (
-    (stocks or 0) + (mutual_funds or 0) + (rsu_esop or 0) + (bonds or 0) + (unlisted_shares or 0) +
+    (stocks or 0) + (mutual_funds or 0) + (rsu_esop or 0) + (bonds or 0) +
     (fixed_deposits or 0) + (ppf_epf_nps or 0) + (gold or 0) + (aif_pms or 0) + (other_financial or 0)
 ) * LAKH
 
@@ -151,13 +150,12 @@ nfa_col1, nfa_col2 = st.columns(2)
 
 with nfa_col1:
     primary_residence = st.number_input("Primary Residence (market value) (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    other_real_estate = st.number_input("Other Real Estate (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 with nfa_col2:
-    other_non_financial = st.number_input("Other Non-Financial Assets (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    other_real_estate = st.number_input("Other Real Estate (₹ Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 total_non_financial_assets = (
-    (primary_residence or 0) + (other_real_estate or 0) + (other_non_financial or 0)
+    (primary_residence or 0) + (other_real_estate or 0)
 ) * LAKH
 
 st.markdown("---")
@@ -196,6 +194,10 @@ if analyze:
         st.error("⚠️ Please enter at least your **Name** and **Phone Number** before analyzing.")
         st.stop()
 
+    if not phone.strip().isdigit() or len(phone.strip()) != 10:
+        st.error("⚠️ Please enter a valid **10-digit** phone number (numbers only).")
+        st.stop()
+
     st.markdown("---")
     st.subheader("📊 Summary")
 
@@ -226,21 +228,21 @@ if analyze:
         name, email, phone,
         annual_income,
         (stocks or 0) * LAKH, (mutual_funds or 0) * LAKH, (rsu_esop or 0) * LAKH,
-        (bonds or 0) * LAKH, (unlisted_shares or 0) * LAKH,
+        (bonds or 0) * LAKH,
         (fixed_deposits or 0) * LAKH, (ppf_epf_nps or 0) * LAKH, (gold or 0) * LAKH,
         (aif_pms or 0) * LAKH, (other_financial or 0) * LAKH,
         total_financial_assets,
-        (primary_residence or 0) * LAKH, (other_real_estate or 0) * LAKH, (other_non_financial or 0) * LAKH,
+        (primary_residence or 0) * LAKH, (other_real_estate or 0) * LAKH,
         total_non_financial_assets,
         net_worth,
         option1, option2, option3, is_eligible
     ])
 
     if is_eligible:
-        st.success(f"🎉 Congratulations {name if name else ''}! You may qualify as an **Accredited Investor**.")
+        st.success(f"🎉 Congratulations {name if name else ''}! You qualify as an **Accredited Investor**.")
         st.markdown(
             """
-            <a href="https://wa.me/916364942933?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
+            <a href="https://wa.me/91XXXXXXXXXX?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
             target="_blank">
                 <button style="
                     background-color:#25D366;
