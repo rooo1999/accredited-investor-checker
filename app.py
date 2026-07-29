@@ -338,7 +338,7 @@ st.markdown("---")
 # Annual Income
 # ----------------------------
 st.subheader("Annual Income")
-annual_income = currency_input("Annual Income (₹ per annum)", "annual_income")
+annual_income = currency_input("Annual Income (As per Latest ITR)", "annual_income")
 
 st.markdown("---")
 
