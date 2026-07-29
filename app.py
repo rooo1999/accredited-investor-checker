@@ -244,7 +244,7 @@ if analyze:
         st.success(f"Congratulations {name if name else ''}! You qualify as an **Accredited Investor**.")
         st.markdown(
             """
-            <a href="https://wa.me/91XXXXXXXXXX?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
+            <a href="https://wa.me/916364942933?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
             target="_blank">
                 <button style="
                     background-color:#25D366;
