@@ -81,7 +81,7 @@ def format_inr(amount):
 # Header
 # ----------------------------
 
-st.title("MIRA Wealth")
+st.markdown("<h1 style='color:#D4AF37;'>MIRA Wealth</h1>", unsafe_allow_html=True)
 st.title("Accredited Investor Eligibility Checker")
 st.caption("Check whether you qualify as an Accredited Investor under SEBI's framework")
 
