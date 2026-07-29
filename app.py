@@ -55,19 +55,34 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Text / number inputs — visible boxed style */
-    div[data-baseweb="input"] {
+    /* Text / number inputs — visible boxed style (multiple selectors for
+       compatibility across Streamlit versions) */
+    .stTextInput input,
+    .stNumberInput input,
+    [data-testid="stTextInput"] input,
+    [data-testid="stNumberInput"] input,
+    [data-testid="stTextInputRootElement"],
+    div[data-baseweb="input"],
+    div[data-baseweb="base-input"] {
         background: #1a1e27 !important;
-        border: 1px solid #2d343f !important;
+        border: 1px solid #3a4150 !important;
         border-radius: 4px !important;
     }
-    div[data-baseweb="input"] input {
+    .stTextInput input,
+    .stNumberInput input,
+    [data-testid="stTextInput"] input,
+    [data-testid="stNumberInput"] input {
         color: #ffffff !important;
         font-size: 1.0rem !important;
         padding: 10px 12px !important;
+        background: #1a1e27 !important;
     }
-    div[data-baseweb="input"]:focus-within {
-        border: 1px solid #c5a059 !important;
+    .stTextInput input:focus,
+    .stNumberInput input:focus,
+    [data-testid="stTextInput"] input:focus,
+    [data-testid="stNumberInput"] input:focus {
+        border-color: #c5a059 !important;
+        box-shadow: 0 0 0 1px #c5a059 !important;
     }
 
     /* Hide the "Press Enter to apply" instruction hint under inputs */
@@ -290,8 +305,10 @@ components.html("""
 # ----------------------------
 st.markdown("""
 <div style="text-align:left; margin-bottom: 6px;">
-    <div style="letter-spacing:4px; font-size:0.68rem; color:#c5a059; text-transform:uppercase; font-weight:600;">MIRA Wealth</div>
-    <h1 style="font-family:'Playfair Display', serif; font-weight:600; font-size:1.9rem; margin:14px 0 4px; letter-spacing:-0.3px; color:#ffffff; line-height:1.25;">
+    <h1 style="font-family:'Playfair Display', serif; font-weight:600; font-size:1.9rem; margin:0 0 4px; letter-spacing:-0.3px; color:#c5a059; line-height:1.25;">
+        MIRA Wealth
+    </h1>
+    <h1 style="font-family:'Playfair Display', serif; font-weight:600; font-size:1.9rem; margin:0; letter-spacing:-0.3px; color:#ffffff; line-height:1.25;">
         Accredited Investor Eligibility Checker
     </h1>
 </div>
