@@ -326,7 +326,7 @@ st.subheader("Personal Information")
 col1, col2 = st.columns(2)
 with col1:
     name = st.text_input("Full Name *")
-    email = st.text_input("Email Address (optional)")
+    email = st.text_input("Email Address *")
 with col2:
     phone = st.text_input("Phone Number * (10 digits)", placeholder="10-digit mobile number", max_chars=10)
 
@@ -338,7 +338,7 @@ st.markdown("---")
 # Annual Income
 # ----------------------------
 st.subheader("Annual Income")
-annual_income = currency_input("Annual Income (As per Latest ITR)", "annual_income")
+annual_income = currency_input("Annual Income (₹ per annum)", "annual_income")
 
 st.markdown("---")
 
@@ -416,8 +416,12 @@ st.markdown("## ")
 analyze = st.button("Analyze Eligibility", type="primary", use_container_width=True)
 
 if analyze:
-    if not name.strip() or not phone.strip():
-        st.error("Please enter your **Name** and **Phone Number** before analyzing.")
+    if not name.strip() or not email.strip() or not phone.strip():
+        st.error("Please enter your **Name**, **Email**, and **Phone Number** before analyzing.")
+        st.stop()
+
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email.strip()):
+        st.error("Please enter a valid **email address**.")
         st.stop()
 
     if not phone.strip().isdigit() or len(phone.strip()) != 10:
