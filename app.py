@@ -90,7 +90,7 @@ st.markdown("---")
 # ----------------------------
 # Personal Information
 # ----------------------------
-st.subheader("👤 Personal Information")
+st.subheader("Personal Information")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -106,7 +106,7 @@ st.markdown("---")
 # ----------------------------
 # Annual Income
 # ----------------------------
-st.subheader("💰 Annual Income")
+st.subheader("Annual Income")
 annual_income_lakh = st.number_input(
     "Annual Income (₹ in Lakhs)",
     min_value=0, step=1, value=None, placeholder="Enter amount"
@@ -118,7 +118,7 @@ st.markdown("---")
 # ----------------------------
 # Financial Assets
 # ----------------------------
-st.subheader("📈 Financial Assets")
+st.subheader("Financial Assets")
 st.caption("Liquid/investible assets - excludes your real estate investments")
 
 fa_col1, fa_col2 = st.columns(2)
@@ -146,7 +146,7 @@ st.markdown("---")
 # ----------------------------
 # Non-Financial Assets
 # ----------------------------
-st.subheader("🏠 Non-Financial Assets")
+st.subheader("Non-Financial Assets")
 
 nfa_col1, nfa_col2 = st.columns(2)
 
@@ -189,19 +189,19 @@ def check_accredited_investor(net_worth, total_financial_assets, annual_income):
 # Analyze Button
 # ----------------------------
 st.markdown("## ")
-analyze = st.button("🔍 Analyze Eligibility", type="primary", use_container_width=True)
+analyze = st.button("Analyze Eligibility", type="primary", use_container_width=True)
 
 if analyze:
     if not name.strip() or not phone.strip():
-        st.error("⚠️ Please enter your **Name** and **Phone Number** before analyzing.")
+        st.error("Please enter your **Name** and **Phone Number** before analyzing.")
         st.stop()
 
     if not phone.strip().isdigit() or len(phone.strip()) != 10:
-        st.error("⚠️ Please enter a valid **10-digit** phone number (numbers only).")
+        st.error("Please enter a valid **10-digit** phone number (numbers only).")
         st.stop()
 
     st.markdown("---")
-    st.subheader("📊 Summary")
+    st.subheader("Summary")
 
     s1, s2, s3 = st.columns(3)
     s1.metric("Net Worth (excl. primary residence)", format_inr(net_worth))
@@ -241,7 +241,7 @@ if analyze:
     ])
 
     if is_eligible:
-        st.success(f"🎉 Congratulations {name if name else ''}! You qualify as an **Accredited Investor**.")
+        st.success(f"Congratulations {name if name else ''}! You qualify as an **Accredited Investor**.")
         st.markdown(
             """
             <a href="https://wa.me/91XXXXXXXXXX?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
@@ -255,7 +255,7 @@ if analyze:
                     font-size:16px;
                     cursor:pointer;
                     width:100%;">
-                    💬 Chat with us on WhatsApp
+                    Chat with us on WhatsApp
                 </button>
             </a>
             """,
