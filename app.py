@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 from datetime import datetime
 import gspread
@@ -6,10 +7,105 @@ from google.oauth2.service_account import Credentials
 # ----------------------------
 # Page Config
 # ----------------------------
-st.set_page_config(page_title="Accredited Investor Eligibility Check", layout="centered")
+st.set_page_config(page_title="MIRA Wealth | Accredited Investor Eligibility Check", layout="centered")
 
-LAKH = 100000  # 1 Lakh = ₹1,00,000
-CRORE = 10000000  # 1 Crore = ₹1,00,00,000
+LAKH = 100000       # 1 Lakh = ₹1,00,000
+CRORE = 10000000    # 1 Crore = ₹1,00,00,000
+
+# ----------------------------
+# Premium theme: fonts + CSS
+# ----------------------------
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+
+    /* Card-style container for the whole form */
+    .main .block-container {
+        max-width: 760px;
+        padding: 3rem 2.5rem 4rem;
+        background: #12151c;
+        border: 1px solid rgba(197, 160, 89, 0.10);
+        border-radius: 6px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Section headers (st.subheader) styled as premium section titles */
+    h3 {
+        font-size: 0.78rem !important;
+        color: #9aa2b1 !important;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        font-weight: 600 !important;
+        margin: 2.2rem 0 1.2rem !important;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid rgba(197, 160, 89, 0.18);
+    }
+
+    /* Widget labels */
+    [data-testid="stWidgetLabel"] p {
+        font-size: 0.72rem !important;
+        color: #8e95a2 !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600 !important;
+    }
+
+    /* Text / number inputs — minimal underline style */
+    div[data-baseweb="input"] {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid #2d343f !important;
+        border-radius: 0 !important;
+    }
+    div[data-baseweb="input"] input {
+        color: #ffffff !important;
+        font-size: 1.05rem !important;
+        padding-left: 2px !important;
+    }
+    div[data-baseweb="input"]:focus-within {
+        border-bottom: 1px solid #c5a059 !important;
+    }
+
+    /* Divider lines */
+    hr { border-color: rgba(197, 160, 89, 0.15) !important; }
+
+    /* Metrics */
+    [data-testid="stMetricLabel"] {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.7rem !important;
+        color: #8e95a2 !important;
+    }
+    [data-testid="stMetricValue"] {
+        color: #c5a059 !important;
+        font-family: 'Playfair Display', serif;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 600;
+        border-radius: 2px !important;
+        padding: 0.9rem !important;
+        border: none !important;
+        transition: 0.25s;
+    }
+    .stButton > button:hover {
+        letter-spacing: 3.5px;
+    }
+
+    /* Expander */
+    details {
+        border: 1px solid rgba(197, 160, 89, 0.18) !important;
+        border-radius: 4px !important;
+        background: rgba(197, 160, 89, 0.03) !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ----------------------------
 # Google Sheets connection
@@ -67,9 +163,10 @@ def save_lead(row_data):
 
 
 # ----------------------------
-# Helper: format rupees nicely
+# Helpers: rupee formatting
 # ----------------------------
 def format_inr(amount):
+    """Used for displaying summary totals in Cr / L (unrelated to input formatting)."""
     if amount >= CRORE:
         return f"₹{amount / CRORE:.2f} Cr"
     elif amount >= LAKH:
@@ -77,12 +174,58 @@ def format_inr(amount):
     else:
         return f"₹{amount:,.0f}"
 
+
+def indian_comma_format(digits: str) -> str:
+    """Formats a plain digit string into Indian comma grouping, e.g. 1234567 -> 12,34,567"""
+    if not digits:
+        return ""
+    n = str(int(digits))  # strips leading zeros
+    if len(n) <= 3:
+        return n
+    last3 = n[-3:]
+    rest = n[:-3]
+    parts = []
+    while len(rest) > 2:
+        parts.insert(0, rest[-2:])
+        rest = rest[:-2]
+    if rest:
+        parts.insert(0, rest)
+    return ",".join(parts) + "," + last3
+
+
+def currency_input(label, key):
+    """
+    Renders a text input for entering a full rupee amount, with Indian-style
+    comma grouping applied automatically as the person types.
+    Returns the entered amount as an integer (in plain rupees).
+    """
+    def _reformat():
+        raw = st.session_state.get(key, "")
+        digits = re.sub(r"[^0-9]", "", raw)
+        st.session_state[key] = indian_comma_format(digits) if digits else ""
+
+    st.text_input(label, key=key, on_change=_reformat, placeholder="₹ e.g. 50,00,000")
+
+    raw_value = st.session_state.get(key, "")
+    digits = re.sub(r"[^0-9]", "", raw_value)
+    return int(digits) if digits else 0
+
+
 # ----------------------------
 # Header
 # ----------------------------
+st.markdown("""
+<div style="text-align:center; margin-bottom: 10px;">
+    <div style="letter-spacing:4px; font-size:0.7rem; color:#c5a059; text-transform:uppercase; font-weight:600;">MIRA Wealth</div>
+    <h1 style="font-family:'Playfair Display', serif; font-size:2.3rem; margin:10px 0 6px; letter-spacing:-0.5px; color:#ffffff;">
+        Accredited Investor Eligibility Checker
+    </h1>
+    <div style="display:inline-block; background:rgba(197,160,89,0.10); color:#c5a059; padding:5px 16px; font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; border-radius:2px; margin-top:4px;">
+        SEBI Accredited Investor Assessment
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-st.markdown("<h1 style='color:#D4AF37;'>MIRA Wealth</h1>", unsafe_allow_html=True)
-st.title("Accredited Investor Eligibility Checker")
 st.caption("Check whether you qualify as an Accredited Investor under SEBI's framework")
 
 st.markdown("---")
@@ -107,11 +250,7 @@ st.markdown("---")
 # Annual Income
 # ----------------------------
 st.subheader("Annual Income")
-annual_income_lakh = st.number_input(
-    "Annual Income (₹ in Lakhs)",
-    min_value=0, step=1, value=None, placeholder="Enter amount"
-)
-annual_income = (annual_income_lakh or 0) * LAKH
+annual_income = currency_input("Annual Income (₹ per annum)", "annual_income")
 
 st.markdown("---")
 
@@ -119,27 +258,27 @@ st.markdown("---")
 # Financial Assets
 # ----------------------------
 st.subheader("Financial Assets")
-st.caption("Liquid/investible assets - excludes your real estate investments")
+st.caption("Liquid/investible assets — excludes your real estate investments")
 
 fa_col1, fa_col2 = st.columns(2)
 
 with fa_col1:
-    stocks = st.number_input("Stocks / Equity Shares (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    mutual_funds = st.number_input("Mutual Funds (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    rsu_esop = st.number_input("RSUs / ESOPs (vested, current value) (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    bonds = st.number_input("Bonds / Debentures / NCDs (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    stocks = currency_input("Stocks / Equity Shares (₹)", "stocks")
+    mutual_funds = currency_input("Mutual Funds (₹)", "mutual_funds")
+    rsu_esop = currency_input("RSUs / ESOPs — vested, current value (₹)", "rsu_esop")
+    bonds = currency_input("Bonds / Debentures / NCDs (₹)", "bonds")
 
 with fa_col2:
-    fixed_deposits = st.number_input("Fixed Deposits (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    ppf_epf_nps = st.number_input("PPF / EPF / NPS (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    gold = st.number_input("Gold (ETF / SGB / Physical - investment grade) (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    aif_pms = st.number_input("AIF / PMS Investments (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
-    other_financial = st.number_input("Other Financial Assets (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    fixed_deposits = currency_input("Fixed Deposits (₹)", "fixed_deposits")
+    ppf_epf_nps = currency_input("PPF / EPF / NPS (₹)", "ppf_epf_nps")
+    gold = currency_input("Gold — ETF / SGB / Physical, investment grade (₹)", "gold")
+    aif_pms = currency_input("AIF / PMS Investments (₹)", "aif_pms")
+    other_financial = currency_input("Other Financial Assets (₹)", "other_financial")
 
 total_financial_assets = (
-    (stocks or 0) + (mutual_funds or 0) + (rsu_esop or 0) + (bonds or 0) +
-    (fixed_deposits or 0) + (ppf_epf_nps or 0) + (gold or 0) + (aif_pms or 0) + (other_financial or 0)
-) * LAKH
+    stocks + mutual_funds + rsu_esop + bonds +
+    fixed_deposits + ppf_epf_nps + gold + aif_pms + other_financial
+)
 
 st.markdown("---")
 
@@ -151,14 +290,12 @@ st.subheader("Non-Financial Assets")
 nfa_col1, nfa_col2 = st.columns(2)
 
 with nfa_col1:
-    primary_residence = st.number_input("Primary Residence (market value) (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    primary_residence = currency_input("Primary Residence — market value (₹)", "primary_residence")
 
 with nfa_col2:
-    other_real_estate = st.number_input("Other Real Estate (₹ in Lakhs)", min_value=0, step=1, value=None, placeholder="Enter amount")
+    other_real_estate = currency_input("Other Real Estate (₹)", "other_real_estate")
 
-total_non_financial_assets = (
-    (primary_residence or 0) + (other_real_estate or 0)
-) * LAKH
+total_non_financial_assets = primary_residence + other_real_estate
 
 st.markdown("---")
 
@@ -168,9 +305,8 @@ st.markdown("---")
 total_assets = total_financial_assets + total_non_financial_assets
 
 # Primary residence is captured for records but excluded from net worth
-# used in the eligibility assessment
-primary_residence_value = (primary_residence or 0) * LAKH
-net_worth = total_assets - primary_residence_value
+# used in the eligibility assessment, per SEBI's definition
+net_worth = total_assets - primary_residence
 
 # ----------------------------
 # Eligibility Logic
@@ -201,6 +337,13 @@ if analyze:
         st.stop()
 
     st.markdown("---")
+
+    st.markdown(
+        "<p style='text-align:center; color:#c5a059; font-weight:600; letter-spacing:1.5px; "
+        "text-transform:uppercase; font-size:0.8rem; margin-bottom:1.5rem;'>✓ Analysis Complete — Results Below</p>",
+        unsafe_allow_html=True
+    )
+
     st.subheader("Summary")
 
     s1, s2, s3 = st.columns(3)
@@ -229,12 +372,10 @@ if analyze:
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         name, email, phone,
         annual_income,
-        (stocks or 0) * LAKH, (mutual_funds or 0) * LAKH, (rsu_esop or 0) * LAKH,
-        (bonds or 0) * LAKH,
-        (fixed_deposits or 0) * LAKH, (ppf_epf_nps or 0) * LAKH, (gold or 0) * LAKH,
-        (aif_pms or 0) * LAKH, (other_financial or 0) * LAKH,
+        stocks, mutual_funds, rsu_esop, bonds,
+        fixed_deposits, ppf_epf_nps, gold, aif_pms, other_financial,
         total_financial_assets,
-        (primary_residence or 0) * LAKH, (other_real_estate or 0) * LAKH,
+        primary_residence, other_real_estate,
         total_non_financial_assets,
         net_worth,
         option1, option2, option3, is_eligible
@@ -245,16 +386,20 @@ if analyze:
         st.markdown(
             """
             <a href="https://wa.me/916364942933?text=Hi%2C%20I%20checked%20my%20Accredited%20Investor%20eligibility%20and%20would%20like%20to%20know%20more."
-            target="_blank">
+            target="_blank" style="text-decoration:none;">
                 <button style="
-                    background-color:#25D366;
-                    color:white;
-                    padding:12px 24px;
-                    border:none;
-                    border-radius:8px;
-                    font-size:16px;
+                    background-color:transparent;
+                    color:#c5a059;
+                    padding:16px 24px;
+                    border:1px solid #c5a059;
+                    border-radius:2px;
+                    font-size:0.8rem;
+                    text-transform:uppercase;
+                    letter-spacing:2px;
+                    font-weight:600;
                     cursor:pointer;
-                    width:100%;">
+                    width:100%;
+                    transition:0.25s;">
                     Chat with us on WhatsApp
                 </button>
             </a>
