@@ -20,16 +20,17 @@ st.markdown("""
 <style>
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
-    /* Card-style container for the whole form */
-    .main .block-container {
-        max-width: 760px;
-        padding: 3rem 2.5rem 4rem;
+    /* Card-style container for the whole form (covers multiple Streamlit DOM versions) */
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .block-container,
+    [data-testid="stMainBlockContainer"] {
+        max-width: 720px !important;
+        padding: 3rem 2.5rem 4rem !important;
         background: #12151c;
         border: 1px solid rgba(197, 160, 89, 0.10);
         border-radius: 6px;
         box-shadow: 0 30px 60px rgba(0,0,0,0.45);
-        margin-top: 2rem;
-        margin-bottom: 2rem;
+        margin: 2rem auto !important;
     }
 
     /* Section headers (st.subheader) styled as premium section titles */
@@ -69,6 +70,9 @@ st.markdown("""
         border-bottom: 1px solid #c5a059 !important;
     }
 
+    /* Hide the "Press Enter to apply" instruction hint under inputs */
+    [data-testid="InputInstructions"] { display: none !important; }
+
     /* Divider lines */
     hr { border-color: rgba(197, 160, 89, 0.15) !important; }
 
@@ -98,12 +102,32 @@ st.markdown("""
         letter-spacing: 3.5px;
     }
 
-    /* Expander */
-    details {
-        border: 1px solid rgba(197, 160, 89, 0.18) !important;
-        border-radius: 4px !important;
-        background: rgba(197, 160, 89, 0.03) !important;
+    /* Criteria table */
+    .criteria-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0.5rem;
+        font-size: 0.88rem;
     }
+    .criteria-table th {
+        text-align: left;
+        color: #8e95a2;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+    }
+    .criteria-table td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(197, 160, 89, 0.10);
+        color: #ffffff;
+        vertical-align: top;
+    }
+    .criteria-table tr:last-child td { border-bottom: none; }
+    .status-met { color: #6fcf97; font-weight: 600; white-space: nowrap; }
+    .status-not-met { color: #6b7280; font-weight: 600; white-space: nowrap; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -211,16 +235,66 @@ def currency_input(label, key):
     return int(digits) if digits else 0
 
 
+# One-time JS injection: formats currency inputs with commas live, as the
+# person types, instead of waiting for blur/Enter. This is a client-side
+# visual enhancement only — the Python-side reformatting above (on blur)
+# remains as the source of truth, so calculations stay correct even if
+# this script doesn't run in some environment.
+import streamlit.components.v1 as components
+components.html("""
+<script>
+(function() {
+    function formatIndian(digits) {
+        if (!digits) return "";
+        let n = String(parseInt(digits, 10));
+        if (n.length <= 3) return n;
+        let last3 = n.slice(-3);
+        let rest = n.slice(0, -3);
+        let parts = [];
+        while (rest.length > 2) {
+            parts.unshift(rest.slice(-2));
+            rest = rest.slice(0, -2);
+        }
+        if (rest) parts.unshift(rest);
+        return parts.join(",") + "," + last3;
+    }
+
+    function attach() {
+        const doc = window.parent.document;
+        const inputs = doc.querySelectorAll('input[placeholder="₹ e.g. 50,00,000"]');
+        inputs.forEach(function(input) {
+            if (input.dataset.liveFormatAttached) return;
+            input.dataset.liveFormatAttached = "true";
+            input.addEventListener('input', function() {
+                const digits = input.value.replace(/[^0-9]/g, '');
+                const formatted = formatIndian(digits);
+                if (formatted !== input.value) {
+                    const setter = Object.getOwnPropertyDescriptor(
+                        window.HTMLInputElement.prototype, 'value'
+                    ).set;
+                    setter.call(input, formatted);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        });
+    }
+
+    setInterval(attach, 400);
+})();
+</script>
+""", height=0)
+
+
 # ----------------------------
 # Header
 # ----------------------------
 st.markdown("""
-<div style="text-align:center; margin-bottom: 10px;">
-    <div style="letter-spacing:4px; font-size:0.7rem; color:#c5a059; text-transform:uppercase; font-weight:600;">MIRA Wealth</div>
-    <h1 style="font-family:'Playfair Display', serif; font-size:2.3rem; margin:10px 0 6px; letter-spacing:-0.5px; color:#ffffff;">
+<div style="text-align:center; margin-bottom: 6px;">
+    <div style="letter-spacing:4px; font-size:0.68rem; color:#c5a059; text-transform:uppercase; font-weight:600;">MIRA Wealth</div>
+    <h1 style="font-family:'Playfair Display', serif; font-weight:600; font-size:1.9rem; margin:14px 0 12px; letter-spacing:-0.3px; color:#ffffff; line-height:1.25;">
         Accredited Investor Eligibility Checker
     </h1>
-    <div style="display:inline-block; background:rgba(197,160,89,0.10); color:#c5a059; padding:5px 16px; font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; border-radius:2px; margin-top:4px;">
+    <div style="display:inline-block; background:rgba(197,160,89,0.10); color:#c5a059; padding:5px 16px; font-size:0.62rem; text-transform:uppercase; letter-spacing:2px; border-radius:2px;">
         SEBI Accredited Investor Assessment
     </div>
 </div>
@@ -359,13 +433,36 @@ if analyze:
 
     st.markdown("---")
 
-    with st.expander("See which criteria you meet"):
-        st.write(f"**Option 1** (Net worth, excl. primary residence, ≥ ₹7.5 Cr, with ≥ ₹3.75 Cr in financial assets): "
-                 f"{'✅ Met' if option1 else '❌ Not met'}")
-        st.write(f"**Option 2** (Annual income ≥ ₹2 Cr): "
-                 f"{'✅ Met' if option2 else '❌ Not met'}")
-        st.write(f"**Option 3** (Net worth, excl. primary residence, ≥ ₹5 Cr + income ≥ ₹1 Cr, with ≥ ₹2.5 Cr in financial assets): "
-                 f"{'✅ Met' if option3 else '❌ Not met'}")
+    st.subheader("Eligibility Criteria")
+
+    def status_html(met):
+        return '<span class="status-met">✓ Met</span>' if met else '<span class="status-not-met">Not met</span>'
+
+    criteria_table = f"""
+    <table class="criteria-table">
+        <tr>
+            <th style="width:16%;">Option</th>
+            <th style="width:64%;">Requirement</th>
+            <th style="width:20%;">Status</th>
+        </tr>
+        <tr>
+            <td>Option 1</td>
+            <td>Net worth (excl. primary residence) ≥ ₹7.5 Cr, with ≥ ₹3.75 Cr in financial assets</td>
+            <td>{status_html(option1)}</td>
+        </tr>
+        <tr>
+            <td>Option 2</td>
+            <td>Annual income ≥ ₹2 Cr</td>
+            <td>{status_html(option2)}</td>
+        </tr>
+        <tr>
+            <td>Option 3</td>
+            <td>Net worth (excl. primary residence) ≥ ₹5 Cr + annual income ≥ ₹1 Cr, with ≥ ₹2.5 Cr in financial assets</td>
+            <td>{status_html(option3)}</td>
+        </tr>
+    </table>
+    """
+    st.markdown(criteria_table, unsafe_allow_html=True)
 
     # Save the lead to Google Sheets
     save_lead([
