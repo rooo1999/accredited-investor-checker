@@ -119,7 +119,7 @@ st.markdown("---")
 # Financial Assets
 # ----------------------------
 st.subheader("📈 Financial Assets")
-st.caption("Liquid/investible assets — excludes your primary residence")
+st.caption("Liquid/investible assets — excludes your real estate investments")
 
 fa_col1, fa_col2 = st.columns(2)
 
