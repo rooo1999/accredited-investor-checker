@@ -193,7 +193,7 @@ analyze = st.button("🔍 Analyze Eligibility", type="primary", use_container_wi
 
 if analyze:
     if not name.strip() or not phone.strip():
-        st.error("⚠️ Please enter at least your **Name** and **Phone Number** before analyzing.")
+        st.error("⚠️ Please enter your **Name** and **Phone Number** before analyzing.")
         st.stop()
 
     if not phone.strip().isdigit() or len(phone.strip()) != 10:
