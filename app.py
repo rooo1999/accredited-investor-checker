@@ -328,7 +328,7 @@ with col1:
     name = st.text_input("Full Name *")
     email = st.text_input("Email Address *")
 with col2:
-    phone = st.text_input("Phone Number * (10 digits)", placeholder="10-digit mobile number", max_chars=10)
+    phone = st.text_input("Phone Number * (10 digits)", max_chars=10)
 
 st.caption("* Required fields")
 
