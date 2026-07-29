@@ -43,6 +43,7 @@ st.markdown("""
         margin: 2.2rem 0 1.2rem !important;
         padding-bottom: 0.6rem;
         border-bottom: 1px solid rgba(197, 160, 89, 0.18);
+        text-align: left !important;
     }
 
     /* Widget labels */
@@ -54,20 +55,19 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Text / number inputs — minimal underline style */
+    /* Text / number inputs — visible boxed style */
     div[data-baseweb="input"] {
-        background: transparent !important;
-        border: none !important;
-        border-bottom: 1px solid #2d343f !important;
-        border-radius: 0 !important;
+        background: #1a1e27 !important;
+        border: 1px solid #2d343f !important;
+        border-radius: 4px !important;
     }
     div[data-baseweb="input"] input {
         color: #ffffff !important;
-        font-size: 1.05rem !important;
-        padding-left: 2px !important;
+        font-size: 1.0rem !important;
+        padding: 10px 12px !important;
     }
     div[data-baseweb="input"]:focus-within {
-        border-bottom: 1px solid #c5a059 !important;
+        border: 1px solid #c5a059 !important;
     }
 
     /* Hide the "Press Enter to apply" instruction hint under inputs */
@@ -228,7 +228,7 @@ def currency_input(label, key):
         digits = re.sub(r"[^0-9]", "", raw)
         st.session_state[key] = indian_comma_format(digits) if digits else ""
 
-    st.text_input(label, key=key, on_change=_reformat, placeholder="₹ e.g. 50,00,000")
+    st.text_input(label, key=key, on_change=_reformat)
 
     raw_value = st.session_state.get(key, "")
     digits = re.sub(r"[^0-9]", "", raw_value)
@@ -261,7 +261,7 @@ components.html("""
 
     function attach() {
         const doc = window.parent.document;
-        const inputs = doc.querySelectorAll('input[placeholder="₹ e.g. 50,00,000"]');
+        const inputs = doc.querySelectorAll('input[aria-label*="₹"]');
         inputs.forEach(function(input) {
             if (input.dataset.liveFormatAttached) return;
             input.dataset.liveFormatAttached = "true";
@@ -289,14 +289,11 @@ components.html("""
 # Header
 # ----------------------------
 st.markdown("""
-<div style="text-align:center; margin-bottom: 6px;">
+<div style="text-align:left; margin-bottom: 6px;">
     <div style="letter-spacing:4px; font-size:0.68rem; color:#c5a059; text-transform:uppercase; font-weight:600;">MIRA Wealth</div>
-    <h1 style="font-family:'Playfair Display', serif; font-weight:600; font-size:1.9rem; margin:14px 0 12px; letter-spacing:-0.3px; color:#ffffff; line-height:1.25;">
+    <h1 style="font-family:'Playfair Display', serif; font-weight:600; font-size:1.9rem; margin:14px 0 4px; letter-spacing:-0.3px; color:#ffffff; line-height:1.25;">
         Accredited Investor Eligibility Checker
     </h1>
-    <div style="display:inline-block; background:rgba(197,160,89,0.10); color:#c5a059; padding:5px 16px; font-size:0.62rem; text-transform:uppercase; letter-spacing:2px; border-radius:2px;">
-        SEBI Accredited Investor Assessment
-    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -413,7 +410,7 @@ if analyze:
     st.markdown("---")
 
     st.markdown(
-        "<p style='text-align:center; color:#c5a059; font-weight:600; letter-spacing:1.5px; "
+        "<p style='text-align:left; color:#c5a059; font-weight:600; letter-spacing:1.5px; "
         "text-transform:uppercase; font-size:0.8rem; margin-bottom:1.5rem;'>✓ Analysis Complete — Results Below</p>",
         unsafe_allow_html=True
     )
