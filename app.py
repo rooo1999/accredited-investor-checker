@@ -250,13 +250,17 @@ def currency_input(label, key):
     return int(digits) if digits else 0
 
 
-# One-time JS injection: formats currency inputs with commas live, as the
-# person types, instead of waiting for blur/Enter. This is a client-side
-# visual enhancement only — the Python-side reformatting above (on blur)
-# remains as the source of truth, so calculations stay correct even if
-# this script doesn't run in some environment.
-import streamlit.components.v1 as components
-components.html("""
+# One-time-per-session JS injection: formats currency inputs with commas
+# live, as the person types, instead of waiting for blur/Enter. This is a
+# client-side visual enhancement only — the Python-side reformatting above
+# (on blur) remains as the source of truth, so calculations stay correct
+# even if this script doesn't run in some environment.
+#
+# Using st.iframe (st.components.v1.html is deprecated) with a stable key
+# so Streamlit reuses the same iframe across reruns instead of tearing it
+# down and rebuilding it every time a field changes — that rebuild-on-every-
+# rerun behavior was the main cause of the app feeling slow.
+_LIVE_FORMATTER_HTML = """
 <script>
 (function() {
     function formatIndian(digits) {
@@ -297,7 +301,14 @@ components.html("""
     setInterval(attach, 400);
 })();
 </script>
-""", height=0)
+"""
+
+try:
+    st.iframe(srcdoc=_LIVE_FORMATTER_HTML, height=0, key="live_currency_formatter")
+except (AttributeError, TypeError):
+    # Fallback for older Streamlit versions without st.iframe/srcdoc support
+    import streamlit.components.v1 as components
+    components.html(_LIVE_FORMATTER_HTML, height=0)
 
 
 # ----------------------------
@@ -328,7 +339,7 @@ with col1:
     name = st.text_input("Full Name *")
     email = st.text_input("Email Address *")
 with col2:
-    phone = st.text_input("Phone Number * (10 digits)", max_chars=10)
+    phone = st.text_input("Phone Number * (10 digits)", placeholder="10-digit mobile number", max_chars=10)
 
 st.caption("* Required fields")
 
